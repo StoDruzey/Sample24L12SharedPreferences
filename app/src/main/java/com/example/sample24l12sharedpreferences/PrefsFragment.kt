@@ -2,6 +2,8 @@ package com.example.sample24l12sharedpreferences
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +16,8 @@ class PrefsFragment : Fragment() {
     private var _binding: FragmentPrefsBinding? = null
     private val binding get() = requireNotNull(_binding)
 
-    private val prefs by lazy {
-        requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE)
+    private val prefsManager by lazy {
+        PrefsManager(requireContext())
     }
 
     override fun onCreateView(
@@ -32,20 +34,15 @@ class PrefsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
-            checkbox.isChecked = prefs.getBoolean("isChecked", false)
+            checkbox.isChecked = prefsManager.switchIsChecked
+            edittext.setText(prefsManager.editTextValue)
+
             checkbox.setOnCheckedChangeListener { _, isChecked ->
-                prefs
-                    .edit()
-                    .putBoolean("isChecked", isChecked)
-                    .apply()
+                prefsManager.switchIsChecked = isChecked
             }
-            edittext.setText(prefs.getString("editText", null) ?: "no text")
-
-            prefs
-                .edit()
-                .putString("edittext", edittext.text.toString())
-                .apply()
-
+            edittext.addTextChangedListener { text ->
+                prefsManager.editTextValue =text.toString()
+            }
         }
     }
 
